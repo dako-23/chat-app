@@ -4,7 +4,8 @@ import {
   searchUsers,
   openDirect,
   joinByCode,
-  onlineUsers,
+  allUsers,
+  isOnline,
 } from "../lib/api";
 
 export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
@@ -14,7 +15,7 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
   const [results, setResults] = useState([]);
   const [code, setCode] = useState("");
   const [err, setErr] = useState("");
-  const [online, setOnline] = useState([]);
+  const [people, setPeople] = useState([]);
 
   const refresh = useCallback(async () => {
     try {
@@ -30,13 +31,13 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
     return () => clearInterval(t);
   }, [refresh]);
 
-  // Жив списък с онлайн хора — обновява се постоянно
+  // Всички регистрирани потребители — обновява се за да свети онлайн статуса
   useEffect(() => {
     let alive = true;
     const load = async () => {
       try {
-        const list = await onlineUsers();
-        if (alive) setOnline(list);
+        const list = await allUsers();
+        if (alive) setPeople(list);
       } catch (e) {
         console.error(e);
       }
@@ -112,27 +113,32 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
       <div className="online-bar">
         <div className="online-head">
           <span className="live-dot" />
-          Хора на линия: {online.length}
+          Хора ({people.length})
         </div>
-        {online.length === 0 ? (
-          <div className="online-empty">Никой не е онлайн в момента.</div>
+        {people.length === 0 ? (
+          <div className="online-empty">Няма други регистрирани.</div>
         ) : (
-          online.map((u) => (
-            <button
-              key={u.id}
-              className="result"
-              onClick={() => startWith(u.id)}
-            >
-              <div className="avatar sm online-avatar">
-                {initials(u.display_name)}
-                <span className="avatar-dot" />
-              </div>
-              <div>
-                <div className="r-name">{u.display_name}</div>
-                <div className="r-handle">@{u.username}</div>
-              </div>
-            </button>
-          ))
+          people.map((u) => {
+            const on = isOnline(u.last_seen);
+            return (
+              <button
+                key={u.id}
+                className="result"
+                onClick={() => startWith(u.id)}
+              >
+                <div className={`avatar sm ${on ? "online-avatar" : ""}`}>
+                  {initials(u.display_name)}
+                  {on && <span className="avatar-dot" />}
+                </div>
+                <div>
+                  <div className="r-name">{u.display_name}</div>
+                  <div className="r-handle">
+                    {on ? "онлайн" : `@${u.username}`}
+                  </div>
+                </div>
+              </button>
+            );
+          })
         )}
       </div>
 

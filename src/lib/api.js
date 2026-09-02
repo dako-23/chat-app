@@ -32,6 +32,25 @@ export async function searchUsers(term) {
   return data;
 }
 
+// Всички регистрирани потребители (без мен), онлайн най-отгоре
+export async function allUsers() {
+  const u = await me();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, last_seen")
+    .neq("id", u.id)
+    .order("last_seen", { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return data;
+}
+
+// Проверка дали потребител е онлайн (видян през последните 15 сек)
+export function isOnline(lastSeen) {
+  if (!lastSeen) return false;
+  return Date.now() - new Date(lastSeen).getTime() < 15000;
+}
+
 // Хора, които са онлайн в момента (видени през последните 12 сек)
 export async function onlineUsers() {
   const u = await me();
