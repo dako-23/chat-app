@@ -318,6 +318,13 @@ button {
 .new-panel input:focus {
   border-color: var(--accent);
 }
+.online-bar {
+  margin: 0 12px 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
 .online-section {
   margin-bottom: 6px;
 }

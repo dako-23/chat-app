@@ -85,6 +85,6 @@ export function startHeartbeat(userId) {
       .update({ last_seen: new Date().toISOString() })
       .eq("id", userId);
   beat();
-  const t = setInterval(beat, 20000);
+  const t = setInterval(beat, 5000);
   return () => clearInterval(t);
 }

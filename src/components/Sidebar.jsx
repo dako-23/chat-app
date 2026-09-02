@@ -4,6 +4,7 @@ import {
   searchUsers,
   openDirect,
   joinByCode,
+  onlineUsers,
 } from "../lib/api";
 
 export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
@@ -13,6 +14,7 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
   const [results, setResults] = useState([]);
   const [code, setCode] = useState("");
   const [err, setErr] = useState("");
+  const [online, setOnline] = useState([]);
 
   const refresh = useCallback(async () => {
     try {
@@ -27,6 +29,25 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
     const t = setInterval(refresh, 4000);
     return () => clearInterval(t);
   }, [refresh]);
+
+  // Жив списък с онлайн хора — обновява се постоянно
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const list = await onlineUsers();
+        if (alive) setOnline(list);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    load();
+    const t = setInterval(load, 5000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, []);
 
   useEffect(() => {
     if (!term.trim()) {
@@ -87,6 +108,33 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
       <button className="new-btn" onClick={() => setShowNew((s) => !s)}>
         {showNew ? "Затвори" : "+ Нов разговор"}
       </button>
+
+      <div className="online-bar">
+        <div className="online-head">
+          <span className="live-dot" />
+          Хора на линия: {online.length}
+        </div>
+        {online.length === 0 ? (
+          <div className="online-empty">Никой не е онлайн в момента.</div>
+        ) : (
+          online.map((u) => (
+            <button
+              key={u.id}
+              className="result"
+              onClick={() => startWith(u.id)}
+            >
+              <div className="avatar sm online-avatar">
+                {initials(u.display_name)}
+                <span className="avatar-dot" />
+              </div>
+              <div>
+                <div className="r-name">{u.display_name}</div>
+                <div className="r-handle">@{u.username}</div>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
 
       {showNew && (
         <div className="new-panel">

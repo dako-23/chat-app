@@ -32,6 +32,21 @@ export async function searchUsers(term) {
   return data;
 }
 
+// Хора, които са онлайн в момента (видени през последните 12 сек)
+export async function onlineUsers() {
+  const u = await me();
+  const cutoff = new Date(Date.now() - 12000).toISOString();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, last_seen")
+    .gt("last_seen", cutoff)
+    .neq("id", u.id)
+    .order("last_seen", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return data;
+}
+
 // ── Разговори ───────────────────────────────────────────────────────────────
 // Намира съществуващ 1-на-1 разговор с даден човек или създава нов.
 export async function openDirect(otherUserId) {
