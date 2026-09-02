@@ -1290,3 +1290,14 @@ button {
     opacity: 0.2;
   }
 }
+
+/* Грешен отговор — леко разтърсване */
+.s-options button.shake-wrong {
+  border-color: var(--danger);
+  animation: shake 0.4s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}

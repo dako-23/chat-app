@@ -8,23 +8,55 @@ const CONFIG = {
   username: "elena",
   password: "elena-6269",
   displayName: "Elena",
-  greeting: "Здравей, Елена 💛",
+  greeting: "Здравей, Елена! 👋",
   intro:
-    "Имам малка изненада за теб. Но първо — три бързи стъпки. Готова ли си?",
-  question: {
-    text: "Първо, лесен въпрос: коя е любимата ти част от деня?",
-    options: ["Сутрешното кафе ☕", "Залезът 🌇", "Точно този момент 💫"],
-    // всеки отговор е „верен" — това е игра, не изпит
-  },
-  finalTitle: "Готово! 🎉",
+    "Имам една малка изненада за теб. Но първо трябва да минеш през няколко бързи стъпки. Хайде?",
+  // Три лесни въпроса от обща култура — трябва верен отговор за напред
+  questions: [
+    {
+      text: "Коя планета е най-близо до Слънцето?",
+      options: ["Меркурий", "Венера", "Марс"],
+      correct: 0,
+    },
+    {
+      text: "Колко континента има на Земята?",
+      options: ["5", "7", "9"],
+      correct: 1,
+    },
+    {
+      text: "Коя е столицата на Италия?",
+      options: ["Милано", "Венеция", "Рим"],
+      correct: 2,
+    },
+  ],
+  finalTitle: "Браво! 🎉",
   finalText: "Добре дошла в чата, създаден специално за теб.",
   buttonText: "Влез в чата",
 };
 
 export default function Surprise({ onExit, onLoggedIn }) {
-  const [step, setStep] = useState(0); // 0 intro, 1 въпрос, 2 лабиринт, 3 финал
+  // step: 0 intro, 1 въпроси, 2 лабиринт, 3 финал
+  const [step, setStep] = useState(0);
+  const [qIndex, setQIndex] = useState(0);
+  const [wrong, setWrong] = useState(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+
+  const totalSteps = CONFIG.questions.length + 1; // въпроси + лабиринт
+  const answer = (i) => {
+    const q = CONFIG.questions[qIndex];
+    if (i !== q.correct) {
+      setWrong(i);
+      setTimeout(() => setWrong(null), 600);
+      return;
+    }
+    setWrong(null);
+    if (qIndex + 1 < CONFIG.questions.length) {
+      setQIndex(qIndex + 1);
+    } else {
+      setStep(2); // към лабиринта
+    }
+  };
 
   const enter = async () => {
     setBusy(true);
@@ -48,22 +80,28 @@ export default function Surprise({ onExit, onLoggedIn }) {
       <div className="surprise-card">
         {step === 0 && (
           <div className="s-step fade-in">
-            <div className="s-emoji">💌</div>
+            <div className="s-emoji">📦</div>
             <h1>{CONFIG.greeting}</h1>
             <p>{CONFIG.intro}</p>
             <button className="s-primary" onClick={() => setStep(1)}>
-              Да, започваме
+              Хайде, започваме
             </button>
           </div>
         )}
 
         {step === 1 && (
-          <div className="s-step fade-in">
-            <div className="s-progress">Стъпка 1 от 3</div>
-            <h2>{CONFIG.question.text}</h2>
+          <div className="s-step fade-in" key={qIndex}>
+            <div className="s-progress">
+              Стъпка {qIndex + 1} от {totalSteps}
+            </div>
+            <h2>{CONFIG.questions[qIndex].text}</h2>
             <div className="s-options">
-              {CONFIG.question.options.map((o, i) => (
-                <button key={i} onClick={() => setStep(2)}>
+              {CONFIG.questions[qIndex].options.map((o, i) => (
+                <button
+                  key={i}
+                  className={wrong === i ? "shake-wrong" : ""}
+                  onClick={() => answer(i)}
+                >
                   {o}
                 </button>
               ))}
@@ -73,10 +111,12 @@ export default function Surprise({ onExit, onLoggedIn }) {
 
         {step === 2 && (
           <div className="s-step fade-in">
-            <div className="s-progress">Стъпка 2 от 3</div>
-            <h2>Прекарай сърцето до целта 💗</h2>
+            <div className="s-progress">
+              Стъпка {totalSteps} от {totalSteps}
+            </div>
+            <h2>Пренеси хладилника долу 🧊</h2>
             <p className="s-hint">
-              Използвай стрелките или плъзни. Стигни до звездичката.
+              Използвай стрелките или плъзни. Смъкни го от втория етаж до долу.
             </p>
             <Maze onWin={() => setStep(3)} />
           </div>
@@ -205,7 +245,7 @@ function Maze({ onWin }) {
                 isGoal ? "goal" : ""
               }`}
             >
-              {isPlayer ? "💗" : isGoal ? "⭐" : ""}
+              {isPlayer ? "🧊" : isGoal ? "🚪" : ""}
             </div>
           );
         })
