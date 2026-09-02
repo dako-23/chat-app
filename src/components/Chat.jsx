@@ -194,8 +194,9 @@ export default function Chat({ profile, conversation, onBack }) {
           </div>
         </div>
         {meta.join_code && (
-          <div className="code-chip" title="Код за покана">
-            {meta.join_code}
+          <div className="code-chip" title="Дай този код на другия, за да влезе">
+            <span className="code-chip-label">Код на чата</span>
+            <span className="code-chip-value">{meta.join_code}</span>
           </div>
         )}
       </header>
@@ -237,6 +238,20 @@ export default function Chat({ profile, conversation, onBack }) {
 function renderWithDates(messages, ctx) {
   const out = [];
   let lastDate = null;
+  // Индекс на последното МОЕ съобщение, което другият е прочел
+  let lastSeenIdx = -1;
+  if (ctx.otherRead) {
+    const readAt = new Date(ctx.otherRead.last_read_at);
+    messages.forEach((m, i) => {
+      if (
+        m.sender_id === ctx.profile.id &&
+        !m._temp &&
+        new Date(m.created_at) <= readAt
+      ) {
+        lastSeenIdx = i;
+      }
+    });
+  }
   messages.forEach((m, i) => {
     const d = new Date(m.created_at).toDateString();
     if (d !== lastDate) {
@@ -265,6 +280,7 @@ function renderWithDates(messages, ctx) {
           ctx.otherRead &&
           new Date(ctx.otherRead.last_read_at) >= new Date(m.created_at)
         }
+        seenAt={i === lastSeenIdx ? ctx.otherRead?.last_read_at : null}
         allMessages={messages}
         onReply={ctx.onReply}
         onEdit={ctx.onEdit}

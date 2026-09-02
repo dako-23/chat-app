@@ -1,5 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 
+const EMOJI_LIST =
+  "😀 😂 🥹 😍 😘 😎 🤔 😐 😴 😭 😡 🥳 😇 🤗 😅 👍 👎 👌 🙏 👏 💪 🔥 ❤️ 💔 🎉 ✅ ❌ 💯 👀 🙈 🤝 ☕ 🍺 🌹 ⭐".split(
+    " "
+  );
+
 // Компресиране на изображение преди качване
 async function compress(file, maxDim = 1600, quality = 0.82) {
   if (!file.type.startsWith("image/")) return file;
@@ -33,6 +38,7 @@ export default function Composer({ replyTo, onCancelReply, onSend, onTyping }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [drag, setDrag] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const typingTimer = useRef(null);
   const isTyping = useRef(false);
   const inputRef = useRef(null);
@@ -66,8 +72,14 @@ export default function Composer({ replyTo, onCancelReply, onSend, onTyping }) {
     setText("");
     setFile(null);
     setPreview(null);
+    setShowEmoji(false);
     isTyping.current = false;
     onTyping(false);
+    inputRef.current?.focus();
+  };
+
+  const addEmoji = (e) => {
+    setText((t) => t + e);
     inputRef.current?.focus();
   };
 
@@ -112,6 +124,23 @@ export default function Composer({ replyTo, onCancelReply, onSend, onTyping }) {
       )}
 
       <div className="composer">
+        {showEmoji && (
+          <div className="emoji-menu">
+            {EMOJI_LIST.map((e) => (
+              <button key={e} onClick={() => addEmoji(e)}>
+                {e}
+              </button>
+            ))}
+          </div>
+        )}
+        <button
+          type="button"
+          className="emoji-btn"
+          onClick={() => setShowEmoji((s) => !s)}
+          aria-label="Емотикони"
+        >
+          😊
+        </button>
         <label className="attach-btn">
           📎
           <input

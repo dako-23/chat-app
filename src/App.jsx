@@ -11,6 +11,40 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeConv, setActiveConv] = useState(null);
   const [mobileView, setMobileView] = useState("list"); // 'list' | 'chat'
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const saved = Number(localStorage.getItem("sidebarWidth"));
+    return saved >= 240 && saved <= 560 ? saved : 330;
+  });
+  const dragging = useState(false);
+
+  // Влачене на границата между сайдбар и чат
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!dragging[0]) return;
+      const w = Math.min(560, Math.max(240, e.clientX));
+      setSidebarWidth(w);
+    };
+    const onUp = () => {
+      if (dragging[0]) {
+        dragging[1](false);
+        localStorage.setItem("sidebarWidth", String(sidebarWidth));
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [dragging, sidebarWidth]);
+
+  const startDrag = () => {
+    dragging[1](true);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
 
   useEffect(() => {
     (async () => {
@@ -48,12 +82,20 @@ export default function App() {
   if (!profile) return <Login onLoggedIn={onLoggedIn} />;
 
   return (
-    <div className={`layout ${mobileView === "chat" ? "show-chat" : ""}`}>
+    <div
+      className={`layout ${mobileView === "chat" ? "show-chat" : ""}`}
+      style={{ gridTemplateColumns: `${sidebarWidth}px 6px 1fr` }}
+    >
       <Sidebar
         profile={profile}
         activeId={activeConv?.conversation_id}
         onOpen={openConv}
         onLogout={onLogout}
+      />
+      <div
+        className="resizer"
+        onMouseDown={startDrag}
+        title="Влачи за да промениш ширината"
       />
       <main className="main-panel">
         {activeConv ? (

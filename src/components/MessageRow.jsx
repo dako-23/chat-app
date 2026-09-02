@@ -9,6 +9,7 @@ export default function MessageRow({
   reactions,
   profile,
   read,
+  seenAt,
   allMessages,
   onReply,
   onEdit,
@@ -127,12 +128,23 @@ export default function MessageRow({
           </span>
         </div>
 
-        {/* Бутон за бърза реакция/меню */}
+        {/* Бутон за бърза реакция */}
         <button
           className="react-trigger"
           onClick={() => setShowPicker((s) => !s)}
+          aria-label="Реагирай"
         >
-          ⌣
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+            <circle cx="9" cy="10" r="1.1" fill="currentColor" />
+            <circle cx="15" cy="10" r="1.1" fill="currentColor" />
+            <path
+              d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
         </button>
 
         {showPicker && (
@@ -197,6 +209,8 @@ export default function MessageRow({
           ))}
         </div>
       )}
+
+      {seenAt && <div className="seen-label">Видяно в {time(seenAt)}</div>}
     </div>
   );
 }

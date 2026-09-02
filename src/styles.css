@@ -194,7 +194,22 @@ button {
 .layout {
   height: 100%;
   display: grid;
-  grid-template-columns: 330px 1fr;
+  grid-template-columns: 330px 6px 1fr;
+}
+.resizer {
+  background: transparent;
+  cursor: col-resize;
+  transition: background 0.15s;
+  position: relative;
+}
+.resizer:hover,
+.resizer:active {
+  background: var(--accent);
+}
+.resizer::after {
+  content: "";
+  position: absolute;
+  inset: 0 -4px;
 }
 .main-panel {
   min-width: 0;
@@ -302,6 +317,53 @@ button {
 }
 .new-panel input:focus {
   border-color: var(--accent);
+}
+.online-section {
+  margin-bottom: 6px;
+}
+.online-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 rgba(94, 234, 212, 0.6);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 6px rgba(94, 234, 212, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(94, 234, 212, 0);
+  }
+}
+.online-empty {
+  font-size: 12.5px;
+  color: var(--muted);
+  padding: 6px 2px;
+}
+.online-avatar {
+  position: relative;
+}
+.avatar-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
 }
 .result {
   width: 100%;
@@ -483,13 +545,26 @@ button {
   color: var(--accent2);
 }
 .code-chip {
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
   border: 1px solid var(--line);
-  padding: 5px 9px;
-  border-radius: 8px;
+  padding: 5px 10px;
+  border-radius: 9px;
+}
+.code-chip-label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.code-chip-value {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .stream {
@@ -597,8 +672,16 @@ button {
   font-size: 11px;
 }
 .ticks.read {
-  color: var(--accent);
+  color: #4ea1ff;
   opacity: 1;
+  font-weight: 700;
+}
+.seen-label {
+  font-size: 10.5px;
+  color: #4ea1ff;
+  margin-top: 3px;
+  padding-right: 2px;
+  align-self: flex-end;
 }
 .failed-mark {
   color: #fff;
@@ -652,13 +735,21 @@ button {
 }
 
 .react-trigger {
-  border: 0;
-  background: transparent;
+  border: 1px solid var(--line);
+  background: var(--panel);
   color: var(--muted);
   opacity: 0;
-  transition: opacity 0.12s;
-  font-size: 15px;
-  padding: 2px;
+  transition: opacity 0.12s, color 0.12s, border-color 0.12s;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.react-trigger:hover {
+  color: var(--accent);
+  border-color: var(--accent);
 }
 .bubble-wrap:hover .react-trigger {
   opacity: 1;
@@ -860,6 +951,49 @@ button {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
+  position: relative;
+}
+.emoji-btn {
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.75;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.emoji-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+.emoji-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 12px;
+  width: 280px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  box-shadow: 0 16px 44px -14px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+}
+.emoji-menu button {
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  padding: 5px;
+  border-radius: 8px;
+  line-height: 1;
+}
+.emoji-menu button:hover {
+  background: var(--panel2);
+  transform: scale(1.15);
 }
 .attach-btn {
   font-size: 20px;
@@ -916,7 +1050,10 @@ button {
 /* ── Mobile ────────────────────────────────────────────── */
 @media (max-width: 720px) {
   .layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+  }
+  .resizer {
+    display: none;
   }
   .main-panel {
     display: none;
