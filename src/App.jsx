@@ -3,6 +3,7 @@ import { getSession, logout } from "./lib/auth";
 import { myProfile } from "./lib/api";
 import { startHeartbeat } from "./lib/realtime";
 import Login from "./components/Login.jsx";
+import Surprise from "./components/Surprise.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import Chat from "./components/Chat.jsx";
 
@@ -11,6 +12,10 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeConv, setActiveConv] = useState(null);
   const [mobileView, setMobileView] = useState("list"); // 'list' | 'chat'
+  const [surprise, setSurprise] = useState(() => {
+    const p = new URLSearchParams(window.location.search).get("surprise");
+    return p ? p.toLowerCase() : null;
+  });
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const saved = Number(localStorage.getItem("sidebarWidth"));
     return saved >= 240 && saved <= 560 ? saved : 330;
@@ -72,6 +77,12 @@ export default function App() {
     setMobileView("chat");
   };
 
+  const exitSurprise = () => {
+    // Махаме параметъра от URL-а и показваме нормалния вход
+    window.history.replaceState({}, "", window.location.pathname);
+    setSurprise(null);
+  };
+
   if (loading)
     return (
       <div className="center-screen">
@@ -79,7 +90,12 @@ export default function App() {
       </div>
     );
 
-  if (!profile) return <Login onLoggedIn={onLoggedIn} />;
+  if (!profile) {
+    if (surprise === "elena") {
+      return <Surprise onExit={exitSurprise} onLoggedIn={onLoggedIn} />;
+    }
+    return <Login onLoggedIn={onLoggedIn} />;
+  }
 
   return (
     <div

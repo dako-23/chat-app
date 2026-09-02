@@ -89,6 +89,31 @@ export async function logout() {
   await supabase.auth.signOut();
 }
 
+// Автоматичен вход с предварително зададени креденшъли.
+// Ако акаунтът още не съществува — създава го веднъж, после влиза.
+export async function autoLogin(username, password, displayName) {
+  const email = makeEmail(username);
+  // Опит за директен вход
+  let { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    // Няма такъв акаунт още — регистрирай го
+    const { error: e2 } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { display_name: displayName, username } },
+    });
+    if (e2 && !e2.message?.toLowerCase().includes("already")) throw e2;
+    // след регистрация — влез
+    const { error: e3 } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (e3) throw e3;
+  }
+  await ensureProfile(username, displayName);
+  return { username };
+}
+
 export async function getSession() {
   const { data } = await supabase.auth.getSession();
   return data.session;
