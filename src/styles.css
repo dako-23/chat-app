@@ -1222,18 +1222,21 @@ button {
 .maze {
   display: grid;
   gap: 3px;
-  max-width: 300px;
+  width: fit-content;
   margin: 0 auto;
   outline: none;
   touch-action: none;
+  justify-content: center;
 }
 .cell {
-  aspect-ratio: 1;
+  width: 26px;
+  height: 26px;
   background: var(--bg);
   border-radius: 4px;
   display: grid;
   place-items: center;
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1;
 }
 .cell.wall {
   background: var(--accent2);
@@ -1242,9 +1245,13 @@ button {
 .cell.goal {
   background: rgba(94, 234, 212, 0.15);
 }
+.maze-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .maze-controls {
-  grid-column: 1 / -1;
-  margin-top: 14px;
+  margin-top: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;

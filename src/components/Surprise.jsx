@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { autoLogin } from "../lib/auth";
 
-// ── Конфигурация на изненадата ──────────────────────────────
-// Смени текстовете свободно — това е всичко, което трябва да пипаш.
 const CONFIG = {
   name: "Elena",
   username: "elena",
@@ -11,6 +9,7 @@ const CONFIG = {
   greeting: "Здравей, Елена! 👋",
   intro:
     "Имам една малка изненада за теб. Но първо трябва да минеш през няколко бързи стъпки.",
+  // Три лесни въпроса от обща култура — трябва верен отговор за напред
   questions: [
     {
       text: "Коя планета е най-близо до Слънцето?",
@@ -29,7 +28,7 @@ const CONFIG = {
     },
   ],
   finalTitle: "Браво! 🎉",
-  finalText: "Добре дошла в чата, създаден специално за теб :D, понеже OLX е траш.",
+  finalText: "Добре дошла в чата, създаден специално за теб :D",
   buttonText: "Влез в чата",
 };
 
@@ -222,33 +221,36 @@ function Maze({ onWin }) {
   };
 
   return (
-    <div
-      className="maze"
-      ref={boardRef}
-      tabIndex={0}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-      style={{
-        gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-      }}
-    >
-      {GRID.map((row, y) =>
-        row.map((cell, x) => {
-          const isWall = cell === "1";
-          const isGoal = x === goal.x && y === goal.y;
-          const isPlayer = x === pos.x && y === pos.y;
-          return (
-            <div
-              key={`${x}-${y}`}
-              className={`cell ${isWall ? "wall" : ""} ${
-                isGoal ? "goal" : ""
-              }`}
-            >
-              {isPlayer ? "🧊" : isGoal ? "🚪" : ""}
-            </div>
-          );
-        })
-      )}
+    <div className="maze-area">
+      <div
+        className="maze"
+        ref={boardRef}
+        tabIndex={0}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        style={{
+          gridTemplateColumns: `repeat(${COLS}, 26px)`,
+          gridAutoRows: "26px",
+        }}
+      >
+        {GRID.map((row, y) =>
+          row.map((cell, x) => {
+            const isWall = cell === "1";
+            const isGoal = x === goal.x && y === goal.y;
+            const isPlayer = x === pos.x && y === pos.y;
+            return (
+              <div
+                key={`${x}-${y}`}
+                className={`cell ${isWall ? "wall" : ""} ${
+                  isGoal ? "goal" : ""
+                }`}
+              >
+                {isPlayer ? "🧊" : isGoal ? "🚪" : ""}
+              </div>
+            );
+          })
+        )}
+      </div>
       <div className="maze-controls">
         <button onClick={() => move(0, -1)}>▲</button>
         <div>
