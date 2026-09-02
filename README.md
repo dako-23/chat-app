@@ -1,96 +1,59 @@
-# Чат приложение — реален чат между двама души
+# Realtime Chat
 
-React + Supabase (realtime, база, снимки) + Vercel (хостинг).
+A small 1-on-1 realtime chat I built with React and Supabase. Sign in with just a name, get a password for next time, and start chatting. Hosted on Vercel.
 
-Твоята работа е ~10 минути еднократно. Целият код е готов. Следвай стъпките по ред.
+## Features
 
----
+- Sign in with a name — you get a password to log back in later
+- Realtime messaging over WebSockets (no polling, no refresh)
+- Sent / delivered / read receipts (✓ / ✓✓)
+- Typing indicator, online status, last seen
+- Reply, edit, delete (for me / for everyone), copy
+- Emoji reactions ❤️ 😂 👍 😮 😢
+- Image sharing with preview, drag & drop, and auto-compression
+- Date separators, auto-scroll, infinite scroll for older messages
+- Find people by name, or join a conversation with a code
+- Works on mobile and desktop
 
-## Какво умее
+## Tech
 
-- Регистрация само с име → дава ти парола за следващия път
-- Реален чат в реално време (WebSocket, без опресняване на страницата)
-- Sent / delivered / read (✓ / ✓✓) статуси
-- „пише…" индикатор, онлайн статус, last seen
-- Reply, edit, delete (за мен / за всички), copy
-- Emoji реакции ❤️ 😂 👍 😮 😢
-- Снимки: качване, preview, drag & drop, автокомпресиране
-- Групиране по дата, автоскрол, infinite scroll за старите съобщения
-- Търсене на хора по име + присъединяване по код
-- Работи на телефон и десктоп
+- React + Vite
+- Supabase (Postgres, Realtime, Storage, Auth)
+- Deployed on Vercel
 
----
+## Setup
 
-## СТЪПКА 1 — Supabase (базата)
+### 1. Supabase
 
-1. Влез в **https://supabase.com** → влез с GitHub → **New project**.
-2. Дай име, задай парола за базата (запиши си я някъде), избери регион близо до теб → **Create**. Изчакай ~2 мин да се вдигне.
-3. Отляво → **SQL Editor** → **New query**.
-4. Отвори файла `supabase-setup.sql` от този проект, копирай **цялото** съдържание, постави го в редактора → натисни **Run** (долу вдясно). Трябва да пише *Success*.
-5. **Важно (олекотено логване):** отляво → **Authentication** → **Sign In / Providers** → **Email** → изключи **Confirm email** → Save. Така регистрацията с име работи без реален имейл.
-6. Отляво → **Project Settings** → **API**. Копирай две неща (ще ти трябват в Стъпка 3):
-   - **Project URL** (напр. `https://abcd.supabase.co`)
-   - **anon public** ключа (или „publishable")
+1. Create a new project at [supabase.com](https://supabase.com).
+2. Open the **SQL Editor**, paste the contents of `supabase-setup.sql`, and run it. This creates all tables, RLS policies, RPC functions, and the storage bucket.
+3. Go to **Authentication → Sign In / Providers → Email** and turn **Confirm email** off. Login uses name-based accounts with internal emails, so email confirmation has to be disabled.
+4. Grab your **Project URL** and **anon/publishable key** from **Project Settings → API**.
 
----
+### 2. Environment variables
 
-## СТЪПКА 2 — Качи кода в GitHub
+Copy `.env.example` to `.env.local` and fill in:
 
-Ако нямаш GitHub — направи безплатен акаунт на **https://github.com**.
-
-Най-лесно през браузъра:
-1. **https://github.com/new** → дай име на репото (напр. `chat`) → **Create repository**.
-2. На следващата страница → **uploading an existing file** → плъзни всички файлове от тази папка (без `node_modules`, ако го има) → **Commit**.
-
-Или през терминал, ако ти е познат:
-```bash
-git init
-git add .
-git commit -m "chat app"
-git branch -M main
-git remote add origin https://github.com/ТВОЯ-ПОТРЕБИТЕЛ/chat.git
-git push -u origin main
+```
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
 
----
-
-## СТЪПКА 3 — Деплой на Vercel
-
-1. Влез в **https://vercel.com** → влез с GitHub.
-2. **Add New → Project** → избери репото от Стъпка 2 → **Import**.
-3. Vercel сам разпознава Vite (Framework: Vite). Не пипай build настройките.
-4. Разгъни **Environment Variables** и добави двете от Стъпка 1:
-
-   | Name | Value |
-   |------|-------|
-   | `VITE_SUPABASE_URL` | твоят Project URL |
-   | `VITE_SUPABASE_ANON_KEY` | твоят anon ключ |
-
-5. **Deploy**. След ~1 мин получаваш линк тип `https://chat-xxx.vercel.app`.
-
-Готово. Отвори линка, регистрирай се с име, прати линка на втория човек — той се регистрира със своето име, търси те по име, отваря разговор.
-
----
-
-## Локално стартиране (по избор)
+### 3. Run locally
 
 ```bash
 npm install
-cp .env.example .env.local   # попълни двете стойности
 npm run dev
 ```
 
----
+### 4. Deploy
 
-## Ако нещо не работи
+Push to GitHub, import the repo on Vercel, add the same two environment variables, and deploy. Vercel auto-detects Vite.
 
-- **„изисква потвърждение по имейл"** при регистрация → не си изключил Confirm email (Стъпка 1.5).
-- **празен екран** → провери дали двете Environment Variables във Vercel са точни, после Redeploy.
-- **съобщенията не идват live** → провери в SQL-а, че последните `alter publication ... add table` редове са минали (пусни само тях наново, ако трябва).
-- **снимките не се качват** → провери в Supabase → Storage, че bucket `chat-images` съществува и е public.
+## Notes
 
----
+Security is intentionally light — this is meant for a small, trusted group, not public use. Passwords are shown on screen, emails are synthetic, and any signed-in user can search for any other. Don't ship this as-is to the open internet.
 
-## Следва v2
+## Roadmap
 
-Групи, глобално търсене, offline режим, reconnection, multi-device sync, block/report — ще ги добавим след теста.
+Next up: group chats, global search, offline mode, reconnection handling, multi-device sync, and block/report.
