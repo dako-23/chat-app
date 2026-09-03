@@ -101,7 +101,12 @@ export default function Chat({ profile, conversation, onBack }) {
     const el = streamRef.current;
     if (!el) return;
     requestAnimationFrame(() => {
-      el.scrollTo({ top: el.scrollHeight, behavior: instant ? "auto" : "smooth" });
+      requestAnimationFrame(() => {
+        el.scrollTo({
+          top: el.scrollHeight,
+          behavior: instant ? "auto" : "smooth",
+        });
+      });
     });
   };
 
