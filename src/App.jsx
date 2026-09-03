@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getSession, logout } from "./lib/auth";
-import { myProfile } from "./lib/api";
+import { myProfile, totalUnread } from "./lib/api";
 import { startHeartbeat } from "./lib/realtime";
+import { supabase } from "./lib/supabase";
+import { setUnreadTitle, playPing } from "./lib/notify";
 import Login from "./components/Login.jsx";
 import Surprise from "./components/Surprise.jsx";
 import Sidebar from "./components/Sidebar.jsx";
@@ -63,6 +65,51 @@ export default function App() {
     if (!profile) return;
     const stop = startHeartbeat(profile.id);
     return stop;
+  }, [profile]);
+
+  // Брояч непрочетени в заглавието на таба + звук при ново съобщение
+  const lastCountRef = useRef(0);
+  useEffect(() => {
+    if (!profile) {
+      setUnreadTitle(0);
+      return;
+    }
+
+    const refreshCount = async () => {
+      const n = await totalUnread();
+      setUnreadTitle(n);
+      lastCountRef.current = n;
+    };
+    refreshCount();
+    const poll = setInterval(refreshCount, 4000);
+
+    // Realtime: звук при ново съобщение от друг, когато табът не е активен
+    const channel = supabase
+      .channel("global-msg-notify")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const m = payload.new;
+          if (m.sender_id === profile.id) return; // мое съобщение
+          // звук само ако не гледам активно
+          if (document.hidden) playPing();
+          refreshCount();
+        }
+      )
+      .subscribe();
+
+    // Изчистване при връщане на таба
+    const onVisible = () => {
+      if (!document.hidden) setTimeout(refreshCount, 500);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(poll);
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [profile]);
 
   const onLoggedIn = async () => setProfile(await myProfile());

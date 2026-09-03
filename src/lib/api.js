@@ -67,6 +67,15 @@ export async function onlineUsers() {
 }
 
 // ── Разговори ───────────────────────────────────────────────────────────────
+// Общ брой непрочетени съобщения от всички разговори
+export async function totalUnread() {
+  const { data, error } = await supabase
+    .from("conversation_overview")
+    .select("unread");
+  if (error) return 0;
+  return (data || []).reduce((sum, r) => sum + (r.unread || 0), 0);
+}
+
 // Намира съществуващ 1-на-1 разговор с даден човек или създава нов.
 export async function openDirect(otherUserId) {
   const { data, error } = await supabase.rpc("get_or_create_direct", {
