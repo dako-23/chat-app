@@ -1308,3 +1308,116 @@ button {
   25% { transform: translateX(-6px); }
   75% { transform: translateX(6px); }
 }
+
+/* ── Гласови съобщения ──────────────────────────────────── */
+.voice-rec {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+.voice-rec.error {
+  color: var(--danger);
+  font-size: 14px;
+  justify-content: space-between;
+}
+.vr-cancel {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+}
+.vr-cancel:hover {
+  color: var(--danger);
+}
+.vr-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: recpulse 1.2s infinite;
+}
+@keyframes recpulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.vr-time {
+  font-family: ui-monospace, monospace;
+  font-size: 15px;
+  color: var(--ink);
+}
+.vr-label {
+  flex: 1;
+  color: var(--muted);
+  font-size: 14px;
+}
+.vr-send {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #0b0f14;
+  display: grid;
+  place-items: center;
+}
+.vr-send:active {
+  transform: translateY(1px);
+}
+
+.mic-btn svg {
+  color: #0b0f14;
+}
+
+.voice-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  padding: 2px 0;
+}
+.vp-play {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+}
+.theirs .vp-play {
+  background: var(--accent2);
+  color: #0b0f14;
+}
+.vp-wave {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 30px;
+}
+.vp-wave span {
+  flex: 1;
+  min-width: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+.theirs .vp-wave span {
+  background: rgba(255, 255, 255, 0.15);
+}
+.vp-wave span.on {
+  background: #fff;
+}
+.theirs .vp-wave span.on {
+  background: var(--accent);
+}
+.vp-time {
+  font-size: 11px;
+  opacity: 0.8;
+  font-family: ui-monospace, monospace;
+  flex-shrink: 0;
+}

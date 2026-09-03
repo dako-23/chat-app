@@ -119,7 +119,7 @@ export async function fetchMessages(conversationId, { before, limit = 30 } = {})
   return data.reverse(); // хронологично
 }
 
-export async function sendMessage(conversationId, { text, replyTo, imageUrl }) {
+export async function sendMessage(conversationId, { text, replyTo, imageUrl, audioUrl }) {
   const u = await me();
   const { data, error } = await supabase
     .from("messages")
@@ -128,6 +128,7 @@ export async function sendMessage(conversationId, { text, replyTo, imageUrl }) {
       sender_id: u.id,
       body: text ?? null,
       image_url: imageUrl ?? null,
+      audio_url: audioUrl ?? null,
       reply_to: replyTo ?? null,
     })
     .select()
@@ -226,6 +227,22 @@ export async function uploadImage(conversationId, file, onProgress) {
   const { error } = await supabase.storage
     .from("chat-images")
     .upload(path, file, { cacheControl: "3600", upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from("chat-images").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+// ── Гласови съобщения ───────────────────────────────────────────────────────
+export async function uploadAudio(conversationId, blob) {
+  const u = await me();
+  const path = `${conversationId}/voice-${u.id}-${Date.now()}.webm`;
+  const { error } = await supabase.storage
+    .from("chat-images")
+    .upload(path, blob, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: blob.type || "audio/webm",
+    });
   if (error) throw error;
   const { data } = supabase.storage.from("chat-images").getPublicUrl(path);
   return data.publicUrl;

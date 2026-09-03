@@ -10,6 +10,7 @@ import {
   fetchReadState,
   getConversation,
   uploadImage,
+  uploadAudio,
 } from "../lib/api";
 import { subscribeMessages, joinPresence } from "../lib/realtime";
 import MessageRow from "./MessageRow.jsx";
@@ -128,8 +129,9 @@ export default function Chat({ profile, conversation, onBack }) {
   };
 
   // Изпращане с optimistic UI
-  const handleSend = async ({ text, file }) => {
+  const handleSend = async ({ text, file, audioBlob }) => {
     let imageUrl = null;
+    let audioUrl = null;
     const temp = {
       id: `temp-${Date.now()}`,
       _temp: true,
@@ -137,6 +139,7 @@ export default function Chat({ profile, conversation, onBack }) {
       sender_id: profile.id,
       body: text || null,
       image_url: file ? "uploading" : null,
+      audio_url: audioBlob ? "uploading" : null,
       reply_to: replyTo?.id || null,
       created_at: new Date().toISOString(),
       _status: "pending",
@@ -148,7 +151,13 @@ export default function Chat({ profile, conversation, onBack }) {
 
     try {
       if (file) imageUrl = await uploadImage(convId, file);
-      await sendMessage(convId, { text, imageUrl, replyTo: currentReply });
+      if (audioBlob) audioUrl = await uploadAudio(convId, audioBlob);
+      await sendMessage(convId, {
+        text,
+        imageUrl,
+        audioUrl,
+        replyTo: currentReply,
+      });
       // realtime INSERT ще замени temp-а
     } catch (e) {
       setMessages((prev) =>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import VoicePlayer from "./VoicePlayer.jsx";
 
 const EMOJIS = ["❤️", "😂", "👍", "😮", "😢"];
 
@@ -91,6 +92,13 @@ export default function MessageRow({
           )}
           {m.image_url === "uploading" && (
             <div className="img-uploading">Качване…</div>
+          )}
+
+          {m.audio_url && m.audio_url !== "uploading" && (
+            <VoicePlayer src={m.audio_url} mine={mine} />
+          )}
+          {m.audio_url === "uploading" && (
+            <div className="img-uploading">Качване на глас…</div>
           )}
 
           {editing ? (

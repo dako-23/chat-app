@@ -198,7 +198,8 @@ export default function Sidebar({ profile, activeId, onOpen, onLogout }) {
                 )}
               </div>
               <div className="conv-preview">
-                {c.last_body || (c.last_image ? "📷 Снимка" : "…")}
+                {c.last_body ||
+                  (c.last_image ? "📷 Снимка" : "🎤 Гласово съобщение")}
               </div>
             </div>
             {c.unread > 0 && <span className="badge">{c.unread}</span>}
